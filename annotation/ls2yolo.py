@@ -1,10 +1,6 @@
 """
-This script processes video annotations created using Label Studio, converting them into a
-format suitable for the YOLO object detection model. The script has the capability to interpolate
-bounding boxes for each intermediate frame based on key-frame annotations (as needed), and export
-these labels (i.e., bounding box coordinates), along with the corresponding frames, into a
-YOLO-compatible format. As it stands with Label Studio version 1.7.0, such functionality isn't
-inherently available. Please note that video annotations should be exported in the JSON-MIN format.
+Converts Label JSON-MIN bounding box annotations to YOLO format.
+Supports interpolation.
 """
 
 import argparse

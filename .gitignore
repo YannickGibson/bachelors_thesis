@@ -1,8 +1,9 @@
 .vscode
 labelstudio-data/
-myfiles/
+mydata/
 output/
 runs/
+saved/
 *.pt
 
 # Byte-compiled / optimized / DLL files

@@ -7,9 +7,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./labelstudio-data:/label-studio/data
-      - ./myfiles:/label-studio/myfiles
+      - ./labelstudio-data:/label-studio/data # inner data for LS
+      - ./mydata:/label-studio/mydata # my custom files that label studio has access to
     user: "1001"
     environment:
       - LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED=true
-      - LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT=/label-studio/myfiles
+      - LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT=/label-studio/mydata
