@@ -8,6 +8,11 @@ kl: kill_labelstudio
 kill_labelstudio:
 	docker-compose down
 
+
+p:
+	ffmpeg -i "C:\Users\yannick.gibson\projects\work\important\ball-tracker\videos\blurred\2hrs.ts" -vf "trim=3600:3720, select=not(mod(n\,3))" -c:v libx264 -c:a aac -strict experimental output.mp4
+
+
 convert_annotations:
 	ifndef CONFIG_FOLDER
 		$(error CONFIG_FOLDER is not set. Please provide the folder where JSON config is located.)
@@ -15,4 +20,4 @@ convert_annotations:
 	python ls2yolo.py \
 	--json_path "C:/Users/yannick.gibson/projects/school/BP/bachelors_thesis/myfiles/label-studio-exports/2024-01-25-21-11_min.json" \
 	--video_path "C:/Users/yannick.gibson/projects/work/important/ball-tracker/videos/ping_05_cam_2.mp4" \
-	--output_path "C:/Users/yannick.gibson/projects/school/BP/bachelors_thesis/myfiles/label-studio-exports/2024-01-25-21-11_min.txt" \	x
+	--output_path "C:/Users/yannick.gibson/projects/school/BP/bachelors_thesis/myfiles/label-studio-exports/2024-01-25-21-11_min.txt"

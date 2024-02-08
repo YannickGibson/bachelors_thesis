@@ -36,7 +36,6 @@ while cap.isOpened():
 
         cv2.imshow("frame", annotated_frame)
 
-
         img_time = time.time() - img_start_time
         img_start_time = time.time()
         print(f"fps: {1/img_time:.3f}")
