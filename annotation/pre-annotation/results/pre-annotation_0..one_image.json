@@ -1,0 +1,115 @@
+[
+    {
+        "data": {
+            "image": "/data/local-files/?d=images/blurry/42min/frame_101599.jpg"
+        },
+        "predictions": [
+            {
+                "model_version": "2hrs_30fps_1to2min_0.83x_speed_v8n_820epochs_earlystopping",
+                "score": 0.5,
+                "result": [
+                    {
+                        "original_width": 1920,
+                        "original_height": 1080,
+                        "image_rotation": 0,
+                        "value": {
+                            "x": 42.093782871961594,
+                            "y": 0.3784380853176117,
+                            "width": 7.456798851490021,
+                            "height": 12.724590301513672,
+                            "rotation": 0,
+                            "rectanglelabels": [
+                                "scorekeeper"
+                            ]
+                        },
+                        "id": "frame_101599.jpg_0",
+                        "from_name": "label",
+                        "to_name": "image",
+                        "type": "rectanglelabels",
+                        "origin": "manual"
+                    },
+                    {
+                        "original_width": 1920,
+                        "original_height": 1080,
+                        "image_rotation": 0,
+                        "value": {
+                            "x": 71.30693681538105,
+                            "y": 16.32532924413681,
+                            "width": 9.360923618078232,
+                            "height": 38.828739523887634,
+                            "rotation": 0,
+                            "rectanglelabels": [
+                                "player"
+                            ]
+                        },
+                        "id": "frame_101599.jpg_1",
+                        "from_name": "label",
+                        "to_name": "image",
+                        "type": "rectanglelabels",
+                        "origin": "manual"
+                    },
+                    {
+                        "original_width": 1920,
+                        "original_height": 1080,
+                        "image_rotation": 0,
+                        "value": {
+                            "x": 8.301019668579102,
+                            "y": 20.061995089054108,
+                            "width": 11.646413803100586,
+                            "height": 34.248027205467224,
+                            "rotation": 0,
+                            "rectanglelabels": [
+                                "player"
+                            ]
+                        },
+                        "id": "frame_101599.jpg_2",
+                        "from_name": "label",
+                        "to_name": "image",
+                        "type": "rectanglelabels",
+                        "origin": "manual"
+                    },
+                    {
+                        "original_width": 1920,
+                        "original_height": 1080,
+                        "image_rotation": 0,
+                        "value": {
+                            "x": 71.21030371636152,
+                            "y": 26.12108774483204,
+                            "width": 3.100401535630226,
+                            "height": 4.155471175909042,
+                            "rotation": 0,
+                            "rectanglelabels": [
+                                "paddle"
+                            ]
+                        },
+                        "id": "frame_101599.jpg_3",
+                        "from_name": "label",
+                        "to_name": "image",
+                        "type": "rectanglelabels",
+                        "origin": "manual"
+                    },
+                    {
+                        "original_width": 1920,
+                        "original_height": 1080,
+                        "image_rotation": 0,
+                        "value": {
+                            "x": 19.440839625895023,
+                            "y": 25.46533439308405,
+                            "width": 3.3026617020368576,
+                            "height": 4.269663617014885,
+                            "rotation": 0,
+                            "rectanglelabels": [
+                                "ball"
+                            ]
+                        },
+                        "id": "frame_101599.jpg_4",
+                        "from_name": "label",
+                        "to_name": "image",
+                        "type": "rectanglelabels",
+                        "origin": "manual"
+                    }
+                ]
+            }
+        ]
+    }
+]

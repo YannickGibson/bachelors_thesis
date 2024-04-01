@@ -30,7 +30,7 @@ def linear_interpolation(prev_seq, seq, label):
     return frames_info
 
 
-def main(json_path, video_path, output_base):
+def main(json_path, video_path, output_base, skip_frames):
     print("Parsing annotations from JSON")
     # Open the annotation file, which should be exported in "JSON-MIN" format
     with open(json_path) as f:
@@ -117,14 +117,14 @@ def main(json_path, video_path, output_base):
     # Extract the Frames
     if video_path is not None:
         vidcap = cv2.VideoCapture(video_path)
-        print(f'Extracting frames')
+        print('Extracting frames')
         for frame in tqdm(files_dict):
-            vidcap.set(cv2.CAP_PROP_POS_FRAMES, frame - 1)
+            vidcap.set(cv2.CAP_PROP_POS_FRAMES, frame - 1 + 1)
             success, image = vidcap.read()
             if success:
                 cv2.imwrite(str(output_path / 'images' / f'frame_{frame:0{padding}d}.jpg'), image)
             else:
-                print(f"Unable to read frame {frame}. Quiting.")
+                print(f"Unable to write frame {frame}. Quiting.")
                 break
 
     print("Process finished successfully.")
@@ -142,6 +142,7 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--video_path", default=None, help="Optional path to video file." \
                                                                  " If provided, corresponding frames will be extracted.")
     parser.add_argument("-o", "--output_base", default='output/', help="Path to output base directory")
+    parser.add_argument("-s", "--skip_frames", default=0, type=int, help="Number of frames to skip")
     args = parser.parse_args()
 
-    main(args.json_path, args.video_path, args.output_base)
+    main(args.json_path, args.video_path, args.output_base, args.skip_frames)

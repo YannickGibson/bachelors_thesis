@@ -1,0 +1,20 @@
+{
+    "original_width": 1920,
+    "original_height": 1080,
+    "image_rotation": 0,
+    "value": {
+        "x": null,
+        "y": null,
+        "width": null,
+        "height": null,
+        "rotation": 0,
+        "rectanglelabels": [
+            null
+        ]
+    },
+    "id": null,
+    "from_name": "label",
+    "to_name": "image",
+    "type": "rectanglelabels",
+    "origin": "manual"
+}
