@@ -1,6 +1,7 @@
 """
 Converts Label JSON-MIN bounding box annotations to YOLO format.
 Supports interpolation.
+Heavily inspired by: https://github.com/roman-dusek/VitalWatch
 """
 
 import argparse
@@ -30,7 +31,7 @@ def linear_interpolation(prev_seq, seq, label):
     return frames_info
 
 
-def main(json_path, video_path, output_base, skip_frames):
+def main(json_path, video_path, output_base):
     print("Parsing annotations from JSON")
     # Open the annotation file, which should be exported in "JSON-MIN" format
     with open(json_path) as f:
@@ -142,7 +143,6 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--video_path", default=None, help="Optional path to video file." \
                                                                  " If provided, corresponding frames will be extracted.")
     parser.add_argument("-o", "--output_base", default='output/', help="Path to output base directory")
-    parser.add_argument("-s", "--skip_frames", default=0, type=int, help="Number of frames to skip")
     args = parser.parse_args()
 
-    main(args.json_path, args.video_path, args.output_base, args.skip_frames)
+    main(args.json_path, args.video_path, args.output_base)

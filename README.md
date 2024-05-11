@@ -9,6 +9,11 @@ thesis are person a and ping-pong paddle, although we experiment with other obje
 The result of this thesis is a model that is trained using method transfer-learning to accurately
 detect people and somewhat accurately detect ping-pong paddles
 
+### Example of inference on unseen data
+![YOLOv8x on unseen data](assets/example_yolov8x.png)
+<video src='assets/example_yolov8x.mp4' width=180/>
+
+
 # Run locally
 
 ### Instal dependencies
@@ -16,10 +21,16 @@ detect people and somewhat accurately detect ping-pong paddles
 conda create -n rod_ping_pong python==3.11
 conda activate rod_ping_pong
 pip install -r requirements.txt
+python rod_ping_pong play_model.py
+```
+### Run model
+```
+python rod_ping_pong play_model.py
 ```
 
-### Run label studio
+### **S**tart **L**abel Studio
 ```
-
+cd rod_ping_pong/annotations
+make sl
 ```
 

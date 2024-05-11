@@ -1,0 +1,95 @@
+[{
+    "data": {
+        "image": "/data/upload/8/7333095d-frame_238852.jpg"
+    },
+
+    "predictions": [
+        {
+            "model_version": "version 1",
+            "score": 0.5,
+            
+            "result": [
+                {
+                    "original_width": 1920,
+                    "original_height": 1080,
+                    "image_rotation": 0,
+                    "value": {
+                        "x": 8.063096812586098,
+                        "y": 19.320278810877294,
+                        "width": 10.078883906081737,
+                        "height": 42.224172601572725,
+                        "rotation": 0,
+                        "rectanglelabels": [
+                            "player"
+                        ]
+                    },
+                    "id": "Jxget1WRIm",
+                    "from_name": "label",
+                    "to_name": "image",
+                    "type": "rectanglelabels",
+                    "origin": "manual"
+                },
+                {
+                    "original_width": 1920,
+                    "original_height": 1080,
+                    "image_rotation": 0,
+                    "value": {
+                        "x": 30.88881840414428,
+                        "y": 4.050210201831247,
+                        "width": 8.764244537250404,
+                        "height": 30.38285758158311,
+                        "rotation": 0,
+                        "rectanglelabels": [
+                            "player"
+                        ]
+                    },
+                    "id": "4msAoHdpo9",
+                    "from_name": "label",
+                    "to_name": "image",
+                    "type": "rectanglelabels",
+                    "origin": "manual"
+                },
+                {
+                    "original_width": 1920,
+                    "original_height": 1080,
+                    "image_rotation": 0,
+                    "value": {
+                        "x": 42.944782191203764,
+                        "y": 0,
+                        "width": 7.011396599330875,
+                        "height": 14.646010927821413,
+                        "rotation": 0,
+                        "rectanglelabels": [
+                            "scorekeeper"
+                        ]
+                    },
+                    "id": "Ll2_4B8LMz",
+                    "from_name": "label",
+                    "to_name": "image",
+                    "type": "rectanglelabels",
+                    "origin": "manual"
+                },
+                {
+                    "original_width": 1920,
+                    "original_height": 1080,
+                    "image_rotation": 0,
+                    "value": {
+                        "x": 13.058720420683612,
+                        "y": 33.031453890349596,
+                        "width": 3.4180543382997346,
+                        "height": 4.6742623429739965,
+                        "rotation": 0,
+                        "rectanglelabels": [
+                            "paddle"
+                        ]
+                    },
+                    "id": "sInjdIGgpQ",
+                    "from_name": "label",
+                    "to_name": "image",
+                    "type": "rectanglelabels",
+                    "origin": "manual"
+                }
+            ]
+        }
+    ]    
+}]

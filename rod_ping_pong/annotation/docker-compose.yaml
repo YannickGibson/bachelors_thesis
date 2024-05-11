@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   labelstudio:
-    image: heartexlabs/label-studio:1.11.0
+    image: heartexlabs/label-studio:1.11.0 # https://hub.docker.com/r/heartexlabs/label-studio
     container_name: labelstudio
     ports:
       - "8080:8080"
