@@ -7,6 +7,12 @@ saved/
 *.pt
 */pre-annotation/results/*
 results/
+data/models/*
+!.gitkeep
+data/yolo_datasets
+data/models
+data/videos
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

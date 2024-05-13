@@ -1,3 +1,7 @@
 # python=3.11.7
 ultralytics
-label-studio
+opencv-python
+matplotlib
+torchvision
+tqdm
+pandas

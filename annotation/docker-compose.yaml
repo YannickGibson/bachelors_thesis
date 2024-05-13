@@ -7,8 +7,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./labelstudio-data:/label-studio/data # inner data for LS
-      - ./mydata:/label-studio/mydata # my custom files that label studio has access to
+      - ../data/labelstudio-data:/label-studio/data # inner data for LS
+      - ../data/yolo_datasets:/label-studio/mydata # my custom files that label studio has access to
     user: "1001"
     environment:
       - LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED=true

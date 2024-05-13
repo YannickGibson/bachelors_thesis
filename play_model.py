@@ -5,8 +5,7 @@ import numpy as np
 import os
 from tqdm import tqdm
 
-from annotation.utils import generate_annotations, generate_images, load_classes
-from annotation.utils import display_frame
+from utils import generate_annotations, generate_images, load_classes, display_frame
 
 
 def get_ball_xy(ult_result: ultralytics.engine.results.Results, ball_class_index: int = 0):
@@ -128,23 +127,17 @@ def draw_annotations(input_frame, annotations, classes, line_width=2, opacity=0.
 
 def main():
     # Load the YOLOv8 model
-    #MODEL_WEIGHTS = 'rod_ping_pong/training/saved/blurry/2hrs_30fps_1to2min_0.83x_speed_v8n_20epochs/weights/best.pt'
-    MODEL_WEIGHTS = 'rod_ping_pong/training/saved/blurry/yolov8x__TRAIN42min_1000random__VAL2hrs_30fps_1to2min_0.83x_speed__TEST42min_100random__222epochs_earlystopping/weights/best.pt'
-    #MODEL_WEIGHTS = 'rod_ping_pong/training/saved/blurry/2hrs_30fps_1to2min_0.83x_speed_v8n_10epochs/weights/best.pt'
-    # MODEL_WEIGHTS = 'best-colab-10epochs.pt'
-    # MODEL_WEIGHTS = 'yolov8n-pose.pt'
-    model = YOLO(MODEL_WEIGHTS, task="detect")
-
+    MODEL_WEIGHTS = 'data/models/blurry/yolov8x__TRAIN42min_1000random__VAL2hrs_30fps_1to2min_0.83x_speed__TEST42min_100random__222epochs_earlystopping/weights/best.pt'
+    ON_ANNOTATED_IMAGES = False
+    TRACK = False  # works well with high framerate
     # Save video to file
     out = None
     #out = cv2.VideoWriter('2yolov8x__TRAIN42min_1000random__VAL2hrs_30fps_1to2min_0.83x_speed__TEST42min_100random__222epochs_earlystopping.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 120, (1920, 1080))
-
-    ON_ANNOTATED_IMAGES = False
+    
+    model = YOLO(MODEL_WEIGHTS, task="detect")
     if ON_ANNOTATED_IMAGES:
 
-        #YOLO_DATA_DIR = r"C:\Users\yannick.gibson\projects\school\BP\bachelors_thesis\rod_ping_pong\annotation\mydata\yolo_output\blurry\2hrs_30fps_1to2min_0.83x_speed"
-        #YOLO_DATA_DIR = r"C:\Users\yannick.gibson\projects\school\BP\bachelors_thesis\rod_ping_pong\annotation\mydata\yolo_datasets\old\ping_05_cam_2_30fps_0to1min"
-        YOLO_DATA_DIR = r"C:\Users\yannick.gibson\projects\school\BP\bachelors_thesis\rod_ping_pong\annotation\mydata\yolo_datasets\blurry\42min_1000random"
+        YOLO_DATA_DIR = r"C:\Users\yannick.gibson\projects\school\BP\bachelors_thesis\annotation\mydata\yolo_datasets\blurry\42min_1000random"
         annotations_dir = YOLO_DATA_DIR + r"\labels"
         images_dir = YOLO_DATA_DIR + r"\images"
         classes_dir = YOLO_DATA_DIR + r"\classes.txt"
@@ -156,7 +149,10 @@ def main():
 
         for frame, annotation in tqdm(zip(images_generator, annotations_generator), total=label_count):
             # Inference
-            result = model.predict(frame, verbose=False)[0]  # define what classes to predict
+            if TRACK:
+                result = model.track(frame, verbose=False)[0]  # define what classes to predict
+            else:
+                result = model.predict(frame, verbose=False)[0]  # define what classes to predict
             
             # Annotations
             frame = draw_annotations(frame, annotation, classes, line_width=5)
@@ -166,12 +162,9 @@ def main():
 
             display_frame(frame, out, delay=1)
     else:
-        #VIDEO_PATH = r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\data\videos\blurry\2hrs.ts"
         VIDEO_PATH = r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\data\videos\blurry\42min.mp4"
-        #VIDEO_PATH = "C:/Users/yannick.gibson/projects/work/important/ball-tracker/data/videos/old/ping_03_cam_2.mp4"
-        #VIDEO_PATH = "C:/Users/yannick.gibson/projects/work/important/ball-tracker/data/videos/old/ping_05_cam_2.mp4"
-        #VIDEO_PATH = r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\data\videos\rtmp\heated_battle.mp4"
         SHOW_EVERY = 10
+
         # Open the video file
         cap = cv2.VideoCapture(VIDEO_PATH)
         i = 0
@@ -183,10 +176,14 @@ def main():
                 print("skipping: ", i)
             elif success:
                 if i % SHOW_EVERY == 0:
-                    result = model.predict(frame, verbose=False, conf=0.3)[0]  # define what classes to predict
-                    #frame = result.plot(img=frame)
-                    #frame = draw_ball(frame, result)
-                    frame = draw_predictions(frame, result)
+                    if TRACK:
+                        result = model.track(frame, verbose=False, tracker="bytetrack.yaml")[0]  # define what classes to predict
+                        frame = result.plot()
+                        frame = draw_ball(frame, result)
+                    else:
+                        result = model.predict(frame, verbose=False, conf=0.3)[0]  # define what classes to predict
+                        frame = draw_ball(frame, result)
+                        frame = draw_predictions(frame, result)
                     display_frame(frame, out)
                     print(f"frame: {i}")
             i += 1
