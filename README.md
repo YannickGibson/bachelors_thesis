@@ -14,8 +14,9 @@ detect people and somewhat accurately detect ping-pong paddles
 <video src='assets/example_yolov8x.mp4' width=180/>
 
 ### Video example on unseen data at 120 FPS slowed using YOLOv8m (medium)
-https://github.com/YannickGibson/bachelors_thesis/assets/57909721/6d02cd7d-53ac-4af1-aaa1-2d11e5307de3
 
+
+https://github.com/YannickGibson/bachelors_thesis/assets/57909721/0ff3d92d-7134-4438-a0c2-cd3dcbf70e33
 
 
 # Run locally
