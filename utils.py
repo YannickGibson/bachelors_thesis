@@ -82,18 +82,31 @@ class Stopwatch:
         self.cumulative_iterations = 0
 
 
+def load_annotation(annotation_path: str) -> list:
+    """Load an annotation from defined path with an appropriate format."""
+    with open(annotation_path, 'r') as f:
+        s = f.read().replace("\n\n", "\n")
+        annotation = s.split("\n")
+
+    if annotation[-1] == "":
+        res = [a.split(" ") for a in annotation[:-1]]
+    else:
+        res = [a.split(" ") for a in annotation]
+
+    # Convert all values from string to a number
+    for i in range(len(res)):
+        res[i][0] = int(res[i][0])
+        res[i][1] = float(res[i][1])
+        res[i][2] = float(res[i][2])
+        res[i][3] = float(res[i][3])
+        res[i][4] = float(res[i][4])
+    return res
+
 def generate_annotations(annotations_path: str) -> Iterator[list]:
     """Yield annotation in a list from annotations path"""
     onlyfiles = [f for f in os.listdir(annotations_path) if os.path.isfile(os.path.join(annotations_path, f))]
     for file in onlyfiles:
-        with open(annotations_path + "\\" + file, 'r') as f:
-            s = f.read().replace("\n\n", "\n")
-            annotation = s.split("\n")
-
-        if annotation[-1] == "":
-            yield annotation[:-1]  # ommit last one, because it is an empty string
-        else:
-            yield annotation
+        yield load_annotation(annotations_path + "\\" + file)
 
 
 def generate_images(images_path: str) -> Iterator[np.array]:
@@ -138,3 +151,24 @@ def draw_ball(frame: np.ndarray, x: float, y: float, bgr_color: tuple[int, int, 
     result_frame = frame.copy()
     cv2.circle(result_frame, (round(x), round(y)), radius, bgr_color, thickness=5)
     return result_frame
+
+
+def draw_annotations(input_frame, annotations, classes, line_width=2, opacity=1, color=(0, 255, 0)):
+    frame = input_frame.copy()
+    for annotation in annotations:
+        # Split the annotation into its components
+        class_index = int(annotation[0])
+        x_center = int(float(annotation[1]) * frame.shape[1])
+        y_center = int(float(annotation[2]) * frame.shape[0])
+        width = int(float(annotation[3]) * frame.shape[1])
+        height = int(float(annotation[4]) * frame.shape[0])
+
+        # Draw the bounding box
+        cv2.rectangle(frame, (x_center - width // 2, y_center - height // 2), (x_center + width // 2, y_center + height // 2), color, line_width)
+
+        # Draw the class name
+        cv2.putText(frame, classes[class_index], (x_center, y_center), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        
+    # Change opacity of annotations
+    frame = cv2.addWeighted(frame, opacity, input_frame, 1 - opacity, 0)
+    return frame
