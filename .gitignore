@@ -6,7 +6,7 @@ output/
 runs/
 saved/
 *.pt
-*/pre-annotation/results/*
+*/preannotation/results/*
 results/
 data/models/*
 !.gitkeep

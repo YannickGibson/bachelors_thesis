@@ -6,11 +6,11 @@ import cv2
 from typing import Iterator
 import numpy as np
 import ultralytics as ult
+from tqdm import tqdm
 
-MYDATA_PATH = r"C:\Users\yannick.gibson\projects\school\BP\bachelors_thesis\annotation\mydata"
-LABELS = ["ball", "paddle", "player", "scorekeeper"]
+MYDATA_PATH = os.environ["PREANNOTATION_MYDATA_PATH"].replace("\\", "/")
 RELATIVE_RESULTS_FOLDER_PATH = "results"
-BASE_RESULTS_NAME = "pre-annotation"
+BASE_RESULTS_NAME = "preannotation"
 
 __folder__ = os.path.dirname(__file__)
 BLANK_RESULT = os.path.join(__folder__, 'blank_result.json')
@@ -45,13 +45,15 @@ def get_result(xn: int, yn: int, widthn: int, heightn: int, label: str, id: str)
     return result
 
 
-def image_generator(relative_images_folder_path: str) -> Iterator[tuple[np.array, str]]:
+def image_generator(relative_images_folder_path: str, limit: int | None = None) -> Iterator[tuple[np.array, str]]:
     """Generate images from folder path in alphabetical order with their names.
     All files in folder have to be images.
     """
     images_folder_path = os.path.join(MYDATA_PATH, relative_images_folder_path).replace("\\", "/")
     onlyfiles = [f for f in os.listdir(images_folder_path) if os.path.isfile(os.path.join(images_folder_path, f))]
-    for image_name in onlyfiles:
+    if limit is not None:
+        onlyfiles = onlyfiles[:limit]
+    for image_name in tqdm(onlyfiles):
         image_path = os.path.join(images_folder_path, image_name)
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)
         yield image, image_name
@@ -86,12 +88,9 @@ def conf_boxes_reduce(conf: list[float], boxes: list[np.ndarray], how_many: int)
 def postprocess_reduce(cls: list[int], conf: list[float], boxes: ult.engine.results.Boxes, cls_to_name: dict[int, str]) -> tuple[list[int], list[float], np.array]:
     """Reduce the bounding box number according to the following rules.
     - Max 1 best ball prediction
-    - Max 2 best paddle predictions
-    - Max 1 scorekeeper prediciton
-    - Max 2 player predictions
     """
     name_to_cls = {name: index for index, name in cls_to_name.items()}
-    maxes = {"player": 2, "scorekeeper": 1, "ball": 1, "paddle": 2}  # ordered by avg box size for ease of use in LS
+    maxes = {"ball": 1}  # Alow maximum of 1 ball prediction per frame
 
     result_conf = []
     result_boxes = []
@@ -112,19 +111,20 @@ def postprocess_reduce(cls: list[int], conf: list[float], boxes: ult.engine.resu
 
 def main() -> None:
     # Configurable constants
-    MODEL_PATH = r"C:\Users\yannick.gibson\projects\school\BP\bachelors_thesis\training\saved\2hrs_30fps_1to2min_0.83x_speed_v8n_820epochs_earlystopping\weights\best.pt"
-    RELATIVE_IMAGES_FOLDER_PATH = "images/blurry/42min"
-    IMAGES_FOLDER_NAME = os.path.basename(RELATIVE_IMAGES_FOLDER_PATH)
-    MODEL_VERSION = "2hrs_30fps_1to2min_0.83x_speed_v8n_820epochs_earlystopping"
+    MODEL_PATH = os.environ["PREANNOTATION_MODEL_PATH"].replace("\\", "/")
+    MODEL_VERSION = os.environ["PREANNOTATION_MODEL_VERSION"]
+    RELATIVE_IMAGES_FOLDER_PATH = os.environ["PREANNOTATION_RELATIVE_IMAGES_FOLDER_PATH"].replace("\\", "/")
+    LIMIT = int(os.environ["PREANNOTATION_LIMIT"]) if "PREANNOTATION_LIMIT" in os.environ else None
     if MODEL_VERSION not in MODEL_PATH:
         raise ValueError("Model version is not in model path. Did you forget to update the model version?")
+    IMAGES_FOLDER_NAME = os.path.basename(RELATIVE_IMAGES_FOLDER_PATH)
     
     # Load model
     model = ult.YOLO(MODEL_PATH)
     
     # Iterate over images
     list_of_tasks = []
-    for image, image_name in image_generator(RELATIVE_IMAGES_FOLDER_PATH):
+    for image, image_name in image_generator(RELATIVE_IMAGES_FOLDER_PATH, LIMIT):
         # Inference
         ult_result: ult.engine.results.Results = model.predict(image, verbose=False)[0]
 
