@@ -7,6 +7,19 @@ from tqdm import tqdm
 
 from utils import generate_annotations, generate_images, load_classes, display_frame, draw_annotations
 
+def get_ball_xyconf(ult_result: ultralytics.engine.results.Results, ball_class_index: int = 0):
+    cls = ult_result.boxes.cls.cpu().numpy().astype(int)
+    conf = ult_result.boxes.conf.cpu().numpy().astype(float)
+    boxes = ult_result.boxes
+    ball_conf = [conf[i] for i in range(len(cls)) if cls[i] == ball_class_index]
+    if len(ball_conf) == 0:
+        return None, None
+    ball_boxes = [boxes[i] for i in range(len(cls)) if cls[i] == ball_class_index]
+    highest_conf_index = ball_conf.index(max(ball_conf))
+    highest_conf_ball_box = ball_boxes[highest_conf_index]
+    x_center, y_center, w, h = highest_conf_ball_box.xywh.cpu().numpy().astype(float)[0].tolist()
+    confidence = highest_conf_ball_box.conf.cpu().numpy().astype(float)[0]
+    return x_center, y_center, confidence
 
 def get_ball_xy(ult_result: ultralytics.engine.results.Results, ball_class_index: int = 0):
     cls = ult_result.boxes.cls.cpu().numpy().astype(int)
@@ -95,7 +108,7 @@ def draw_predictions(input_frame, ult_result: ultralytics.engine.results.Results
 def main():
     # Load the YOLOv8 model
     MODEL_WEIGHTS = 'data/models/blurry/yolov8x__TRAIN42min_1000random__VAL2hrs_30fps_1to2min_0.83x_speed__TEST42min_100random__222epochs_earlystopping/weights/best.pt'
-    ON_ANNOTATED_IMAGES = True
+    ON_ANNOTATED_IMAGES = False
     TRACK = False  # works well with high framerate
     # Save video to file
     out = None
@@ -129,17 +142,21 @@ def main():
 
             display_frame(frame, out, delay=1)
     else:
-        VIDEO_PATH = r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\data\videos\blurry\42min.mp4"
-        SHOW_EVERY = 10
+        #VIDEO_PATH = r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\data\videos\blurry\42min.mp4"
+        VIDEO_PATH = r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\data\videos\rtmp\podani.mp4"
+        SHOW_EVERY = 1
 
         # Open the video file
         cap = cv2.VideoCapture(VIDEO_PATH)
         i = 0
         
+        #import pandas as pd
+        #rows = []   
+        #df = pd.DataFrame(columns=["Frame", "Ball", "x", "y"])
         while cap.isOpened():
             # Read a frame from the video
             success, frame = cap.read()
-            if i <= 1200:
+            if i <= 0:
                 print("skipping: ", i)
             elif success:
                 if i % SHOW_EVERY == 0:
@@ -150,12 +167,23 @@ def main():
                     else:
                         result = model.predict(frame, verbose=False, conf=0.3)[0]  # define what classes to predict
                         frame = draw_ball(frame, result)
+                        #x, y, conf = get_ball_xyconf(result)
+                        #if x is not None and y is not None:
+                        #    rows.append([i, 1, round(x / 1920, 3), round(y / 1080, 3)])
+                        #    print(rows[-1])
+                        #else:
+                        #    rows.append([i, 0, -1.0, -1.0])
                         frame = draw_predictions(frame, result)
                     display_frame(frame, out)
                     print(f"frame: {i}")
+            else:
+                break
             i += 1
         else:
             print("Could not open video")
+
+        #df = pd.DataFrame(rows, columns=["Frame", "Confidence", "x", "y"])
+        #df.to_csv("podani.csv", index=False)
 
 
 if __name__ == "__main__":

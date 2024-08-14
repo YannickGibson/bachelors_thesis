@@ -1,3 +1,4 @@
+# Custom
 .vscode
 labelstudio-data/
 mydata/
@@ -12,6 +13,8 @@ data/models/*
 data/yolo_datasets
 data/models
 data/videos
+ball_positions.csv
+podani.csv
 
 
 # Byte-compiled / optimized / DLL files
