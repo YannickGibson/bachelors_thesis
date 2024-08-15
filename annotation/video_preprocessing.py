@@ -103,7 +103,7 @@ def trim_and_alter_fps(input_path: str, output_path: str = None,
     print(f"Video was saved to {output_path}.")
 
 
-def grab_frames_at_random(input_video: str, output_folder: str, num_frames: int, clean_output_folder: bool = False) -> None:
+def grab_frames_at_random(input_video: str, output_folder: str, num_frames: int, overwrite_output_folder: bool = False) -> None:
     """
     Grab random frames from video and save them to output folder.
 
@@ -117,20 +117,37 @@ def grab_frames_at_random(input_video: str, output_folder: str, num_frames: int,
     cap = cv2.VideoCapture(input_video)
     if not cap.isOpened():
         raise ValueError(f"Video file at {input_video} could not be opened.")
+    
+    # Check if output folder exists
+    if not os.path.exists(output_folder):
+        inp = input(f"Output folder at '{output_folder}' does not exist. Do you want to create it? ((y,yes)/(anything else))")
+        if inp.lower() in ["y", "yes"]: 
+            os.makedirs(output_folder)
+        else:
+            raise ValueError("Output folder does not exist. Please create it.")
+        
+
+    # Clean output folder
+    # Get frames in output folder
+    frame_files = []
+    for file in os.listdir(output_folder):
+        if file.startswith("frame_"):  # Only delete files with prefix "frame_"
+            frame_files.append(file)
+        if overwrite_output_folder:
+            if len(frame_files) > 0:
+                print(f"Deleting {len(frame_files)} files from output folder.")
+                for file in tqdm(frame_files):
+                    os.remove(os.path.join(output_folder, file))
+            else:
+                raise ValueError("Output folder has frames in it ({len(frame_files)} frames)}.")
 
     # Generate randomized indexes
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    rand_indexes = np.random.choice(total_frames, num_frames, replace=False)  # replace=False means no duplicates 
-    print("Generating frames to folder: ", output_folder)
-
-    # Clean output folder
-    if clean_output_folder:
-        for file in os.listdir(output_folder):
-            if file.startswith("frame_"):  # Only delete files with prefix "frame_"
-                os.remove(os.path.join(output_folder, file))
+    rand_indexes = np.random.choice(total_frames, num_frames, replace=False)  # replace=False means no duplicates
 
     # Save frames at selected indexes
-    for i in range(num_frames):
+    print(f"Saving {num_frames} frames to {output_folder}.")
+    for i in tqdm(range(num_frames)):
         # Jump to specific frame
         frame_index = rand_indexes[i]
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
@@ -145,7 +162,7 @@ def grab_frames_at_random(input_video: str, output_folder: str, num_frames: int,
 
 
 def main() -> None:
-    case = 0
+    case = 2
     if case == 0:
         # Trim only
         input_video = r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\videos\blurred\2hrs.ts"
@@ -163,10 +180,10 @@ def main() -> None:
         )
     elif case == 2:
         grab_frames_at_random(
-            input_video=r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\data\videos\blurry\42min.mp4",
-            output_folder=r"C:\Users\yannick.gibson\projects\school\BP\bachelors_thesis\annotation\mydata\images\blurry\42min",
+            input_video=os.environ["RANDOM_VIDEO_PATH"],
+            output_folder=os.environ["RANDOM_OUTPUT_FOLDER"],
             num_frames=2000,
-            clean_output_folder=False
+            overwrite_output_folder=False
         )
 
 
