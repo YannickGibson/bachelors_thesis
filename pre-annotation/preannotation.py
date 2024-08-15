@@ -126,6 +126,7 @@ def main() -> None:
     model = ult.YOLO(MODEL_PATH)
     
     # Iterate over images
+    print(f"Starting pre-annotation on dataset {RELATIVE_IMAGES_FOLDER_PATH} in mydatafolder. Using model {MODEL_VERSION}.")
     list_of_tasks = []
     for image, image_name in image_generator(RELATIVE_IMAGES_FOLDER_PATH, LIMIT):
         # Inference

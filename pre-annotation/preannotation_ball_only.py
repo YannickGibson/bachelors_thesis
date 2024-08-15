@@ -118,11 +118,14 @@ def main() -> None:
     if MODEL_VERSION not in MODEL_PATH:
         raise ValueError("Model version is not in model path. Did you forget to update the model version?")
     IMAGES_FOLDER_NAME = os.path.basename(RELATIVE_IMAGES_FOLDER_PATH)
+    if LIMIT is not None:
+        IMAGES_FOLDER_NAME += f"_limit{LIMIT}"
     
     # Load model
     model = ult.YOLO(MODEL_PATH)
     
     # Iterate over images
+    print(f"Starting pre-annotation on dataset '{RELATIVE_IMAGES_FOLDER_PATH}' in mydata/ folder. Using model {MODEL_VERSION}.")
     list_of_tasks = []
     for image, image_name in image_generator(RELATIVE_IMAGES_FOLDER_PATH, LIMIT):
         # Inference

@@ -107,8 +107,8 @@ def draw_predictions(input_frame, ult_result: ultralytics.engine.results.Results
 
 def main():
     # Load the YOLOv8 model
-    MODEL_WEIGHTS = 'data/models/blurry/yolov8x__TRAIN42min_1000random__VAL2hrs_30fps_1to2min_0.83x_speed__TEST42min_100random__222epochs_earlystopping/weights/best.pt'
-    ON_ANNOTATED_IMAGES = False
+    MODEL_WEIGHTS = os.environ["PLAY_MODEL_WEIGHTS"].replace("\\", "/")
+    ON_ANNOTATED_IMAGES = os.environ["PLAY_ON_ANNOTATED_IMAGES"] == "1"
     TRACK = False  # works well with high framerate
     # Save video to file
     out = None
@@ -117,10 +117,10 @@ def main():
     model = YOLO(MODEL_WEIGHTS, task="detect")
     if ON_ANNOTATED_IMAGES:
 
-        YOLO_DATA_DIR = r"data\yolo_datasets\blurry\42min_1000random".replace("\\", "/")
-        annotations_dir = YOLO_DATA_DIR + "/labels"
-        images_dir = YOLO_DATA_DIR + "/images"
-        classes_dir = YOLO_DATA_DIR + "/classes.txt"
+        ANNOTATIONS_DIR = os.environ["PLAY_ANNOTATIONS_DIR"].replace("\\", "/")
+        annotations_dir = ANNOTATIONS_DIR + "/labels"
+        images_dir = ANNOTATIONS_DIR + "/images"
+        classes_dir = ANNOTATIONS_DIR + "/classes.txt"
 
         label_count = len([f for f in os.listdir(images_dir) if os.path.isfile(os.path.join(images_dir, f))])
         images_generator = generate_images(images_dir)
@@ -142,37 +142,33 @@ def main():
 
             display_frame(frame, out, delay=1)
     else:
-        #VIDEO_PATH = r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\data\videos\blurry\42min.mp4"
-        VIDEO_PATH = r"C:\Users\yannick.gibson\projects\work\important\ball-tracker\data\videos\rtmp\podani.mp4"
-        SHOW_EVERY = 1
+        VIDEO_PATH = os.environ["PLAY_VIDEO_PATH"]
+        SHOW_EVERY = int(os.environ["PLAY_SHOW_EVERY"])
+        FRAMES_TO_SKIP = int(os.environ["PLAY_FRAMES_TO_SKIP"])  # zero by default
+        VERTICAL_CROP = os.environ["PLAY_VERTICAL_CROP"] == "1"
+        i = FRAMES_TO_SKIP
 
         # Open the video file
         cap = cv2.VideoCapture(VIDEO_PATH)
-        i = 0
+        # change read index to FRAMES_TO_SKIP
+        print(f"Skipping {FRAMES_TO_SKIP} frames. Frame count is {cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
+        cap.set(cv2.CAP_PROP_POS_FRAMES, FRAMES_TO_SKIP)
         
-        #import pandas as pd
-        #rows = []   
-        #df = pd.DataFrame(columns=["Frame", "Ball", "x", "y"])
         while cap.isOpened():
             # Read a frame from the video
             success, frame = cap.read()
-            if i <= 0:
-                print("skipping: ", i)
-            elif success:
+            if success:
                 if i % SHOW_EVERY == 0:
                     if TRACK:
                         result = model.track(frame, verbose=False, tracker="bytetrack.yaml")[0]  # define what classes to predict
                         frame = result.plot()
                         frame = draw_ball(frame, result)
                     else:
-                        result = model.predict(frame, verbose=False, conf=0.3)[0]  # define what classes to predict
+                        # the frame shape is (1080, 1920, 3), crop the top, reduce the height
+                        if VERTICAL_CROP:
+                            frame = frame[160:1080-100, 0:1920, 0:3]
+                        result = model.predict(frame, verbose=False, conf=0.7, classes=[0])[0]  # define what classes to predict
                         frame = draw_ball(frame, result)
-                        #x, y, conf = get_ball_xyconf(result)
-                        #if x is not None and y is not None:
-                        #    rows.append([i, 1, round(x / 1920, 3), round(y / 1080, 3)])
-                        #    print(rows[-1])
-                        #else:
-                        #    rows.append([i, 0, -1.0, -1.0])
                         frame = draw_predictions(frame, result)
                     display_frame(frame, out)
                     print(f"frame: {i}")
@@ -181,9 +177,6 @@ def main():
             i += 1
         else:
             print("Could not open video")
-
-        #df = pd.DataFrame(rows, columns=["Frame", "Confidence", "x", "y"])
-        #df.to_csv("podani.csv", index=False)
 
 
 if __name__ == "__main__":
