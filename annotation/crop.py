@@ -14,7 +14,7 @@ def crop(video_path, top_crop: int = 0, bottom_crop: int = 0, left_crop: int = 0
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     fourcc_str = int(cap.get(cv2.CAP_PROP_FOURCC)).to_bytes(4, byteorder=sys.byteorder).decode()
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')  # XVID works, copying fourcc triggers error
     extension = video_path.split(".")[-1]
     output_path = f'{output_name_no_ext}.{extension}'
     out = cv2.VideoWriter(output_path, fourcc, fps, (width - left_crop - right_crop, height - top_crop - bottom_crop))
@@ -32,7 +32,7 @@ def crop(video_path, top_crop: int = 0, bottom_crop: int = 0, left_crop: int = 0
 
 if __name__ == "__main__":
     crop(
-        video_path=os.environ["CROP_VIDEO_PATH"],
+        video_path=os.environ["CROP_VIDEO_PATH"].replace("\\", "/"),
         top_crop=int(os.environ["CROP_TOP_CROP"]), 
         bottom_crop=int(os.environ["CROP_BOTTOM_CROP"]), 
         left_crop=int(os.environ["CROP_LEFT_CROP"]), 
