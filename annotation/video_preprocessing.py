@@ -120,7 +120,7 @@ def grab_frames_at_random(input_video: str, output_folder: str, num_frames: int,
     
     # Check if output folder exists
     if not os.path.exists(output_folder):
-        inp = input(f"Output folder at '{output_folder}' does not exist. Do you want to create it? ((y,yes)/(anything else))")
+        inp = input(f"Output folder at '{output_folder}' does not exist. Do you want to create it? ((y,yes)/(anything else)): ")
         if inp.lower() in ["y", "yes"]: 
             os.makedirs(output_folder)
         else:
@@ -139,11 +139,12 @@ def grab_frames_at_random(input_video: str, output_folder: str, num_frames: int,
                 for file in tqdm(frame_files):
                     os.remove(os.path.join(output_folder, file))
             else:
-                raise ValueError("Output folder has frames in it ({len(frame_files)} frames)}.")
+                raise ValueError(f"Output folder has frames in it ({len(frame_files)} frames).")
 
     # Generate randomized indexes
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     rand_indexes = np.random.choice(total_frames, num_frames, replace=False)  # replace=False means no duplicates
+    zero_pad = len(str(total_frames))
 
     # Save frames at selected indexes
     print(f"Saving {num_frames} frames to {output_folder}.")
@@ -158,7 +159,7 @@ def grab_frames_at_random(input_video: str, output_folder: str, num_frames: int,
             print(f"Frame with absolute positon of {frame_index} could not be read.")
             continue
         
-        cv2.imwrite(fr"{output_folder}\frame_{frame_index}.jpg", frame)
+        cv2.imwrite(fr"{output_folder}\frame_{frame_index:0{zero_pad}}.jpg", frame)
 
 
 def main() -> None:

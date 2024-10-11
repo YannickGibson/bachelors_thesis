@@ -4,7 +4,7 @@ from tqdm import tqdm
 import sys
 
 
-def crop(video_path, top_crop: int = 0, bottom_crop: int = 0, left_crop: int = 0, right_crop: int = 0) -> None:
+def crop(video_path, top_crop: int = 0, bottom_crop: int = 0, left_crop: int = 0, right_crop: int = 0, output_name_no_ext: str = "output") -> None:
     """Crop the desired video and save it with name output.<extension>"""
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
@@ -16,7 +16,7 @@ def crop(video_path, top_crop: int = 0, bottom_crop: int = 0, left_crop: int = 0
     fourcc_str = int(cap.get(cv2.CAP_PROP_FOURCC)).to_bytes(4, byteorder=sys.byteorder).decode()
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     extension = video_path.split(".")[-1]
-    output_path = f'output.{extension}'
+    output_path = f'{output_name_no_ext}.{extension}'
     out = cv2.VideoWriter(output_path, fourcc, fps, (width - left_crop - right_crop, height - top_crop - bottom_crop))
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))    
 
@@ -36,5 +36,6 @@ if __name__ == "__main__":
         top_crop=int(os.environ["CROP_TOP_CROP"]), 
         bottom_crop=int(os.environ["CROP_BOTTOM_CROP"]), 
         left_crop=int(os.environ["CROP_LEFT_CROP"]), 
-        right_crop=int(os.environ["CROP_RIGHT_CROP"])
+        right_crop=int(os.environ["CROP_RIGHT_CROP"]),
+        output_name_no_ext=os.environ["CROP_OUTPUT_NAME"]
     )
