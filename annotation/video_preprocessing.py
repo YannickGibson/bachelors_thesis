@@ -103,63 +103,81 @@ def trim_and_alter_fps(input_path: str, output_path: str = None,
     print(f"Video was saved to {output_path}.")
 
 
-def grab_frames_at_random(input_video: str, output_folder: str, num_frames: int, overwrite_output_folder: bool = False) -> None:
+def grab_frames_at_random(input_videos: list[str], output_folder: str, num_frames_per_video: int, overwrite_output_folder: bool = False) -> None:
     """
     Grab random frames from video and save them to output folder.
 
     Args:
-        input_video: Input video file path.
+        input_video: Input video file path(s).
         output_folder: Output folder path.
-        num_frames: Number of frames to grab.
+        num_frames_per_video: Number of frames to grab.
         clean_output_folder: If running twice with same output_folder name, use this option.
     """
-    # Open video
-    cap = cv2.VideoCapture(input_video)
-    if not cap.isOpened():
-        raise ValueError(f"Video file at {input_video} could not be opened.")
+    # Test open video video
+    for input_video in input_videos:
+        cap = cv2.VideoCapture(input_video)
+        if not cap.isOpened():
+            raise ValueError(f"Video file at {input_video} could not be opened.")
+        cap.release()
     
     # Check if output folder exists
-    if not os.path.exists(output_folder):
+    if os.path.exists(output_folder):
+        if overwrite_output_folder:
+            print(f"Output folder at '{output_folder}' already exists. Overwriting...")
+        else:
+            inp = input(f"Output folder at '{output_folder}' already exists. Do you want to overwrite it? ((y,yes)/(anything else)): ")
+            if inp.lower() in ["y", "yes"]:
+                overwrite_output_folder = True
+            else:
+                print("Output folder already exists. Please delete it or use overwrite_output_folder=True.")
+                return
+    else:
         inp = input(f"Output folder at '{output_folder}' does not exist. Do you want to create it? ((y,yes)/(anything else)): ")
         if inp.lower() in ["y", "yes"]: 
             os.makedirs(output_folder)
         else:
             raise ValueError("Output folder does not exist. Please create it.")
-        
 
     # Clean output folder
-    # Get frames in output folder
-    frame_files = []
-    for file in os.listdir(output_folder):
-        if file.startswith("frame_"):  # Only delete files with prefix "frame_"
-            frame_files.append(file)
-        if overwrite_output_folder:
-            if len(frame_files) > 0:
-                print(f"Deleting {len(frame_files)} files from output folder.")
-                for file in tqdm(frame_files):
-                    os.remove(os.path.join(output_folder, file))
-            else:
-                raise ValueError(f"Output folder has frames in it ({len(frame_files)} frames).")
+    if overwrite_output_folder:
+        # Get frames in output folder
+        frame_files = []
+        for file in os.listdir(output_folder):
+            if file.startswith("frame_"):  # Only delete files with prefix "frame_"
+                frame_files.append(file)
+        if len(frame_files) > 0:
+            print(f"Deleting {len(frame_files)} files from output folder.")
+            for file in tqdm(frame_files):
+                os.remove(os.path.join(output_folder, file))
 
-    # Generate randomized indexes
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    rand_indexes = np.random.choice(total_frames, num_frames, replace=False)  # replace=False means no duplicates
-    zero_pad = len(str(total_frames))
+    for input_video in input_videos:
+        cap = cv2.VideoCapture(input_video)
+        if not cap.isOpened():
+            raise ValueError(f"Video file at {input_video} could not be opened.")
+        # Generate randomized indexes
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        rand_indexes = np.random.choice(total_frames, num_frames_per_video, replace=False)  # replace=False means no duplicates
+        zero_pad = len(str(total_frames))
+        if len(input_videos) == 0:
+            id_prefix = ""
+        else:
+            video_name = ".".join(input_video.split("/")[-1].split(".")[:-1])
+            id_prefix = f"{video_name}_"
 
-    # Save frames at selected indexes
-    print(f"Saving {num_frames} frames to {output_folder}.")
-    for i in tqdm(range(num_frames)):
-        # Jump to specific frame
-        frame_index = rand_indexes[i]
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+        # Save frames at selected indexes
+        print(f"Saving '{num_frames_per_video}' frames to '{output_folder}' from video '{video_name}'.")
+        for i in tqdm(range(num_frames_per_video)):
+            # Jump to specific frame
+            frame_index = rand_indexes[i]
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
 
-        # Read video
-        ret, frame = cap.read()
-        if not ret:
-            print(f"Frame with absolute positon of {frame_index} could not be read.")
-            continue
-        
-        cv2.imwrite(fr"{output_folder}\frame_{frame_index:0{zero_pad}}.jpg", frame)
+            # Read video
+            ret, frame = cap.read()
+            if not ret:
+                print(f"Frame with absolute positon of {frame_index} could not be read.")
+                continue
+            
+            cv2.imwrite(fr"{output_folder}\frame_{id_prefix}{frame_index:0{zero_pad}}.jpg", frame)
 
 
 def main() -> None:
@@ -180,10 +198,11 @@ def main() -> None:
             target_fps=24
         )
     elif case == 2:
+        video_paths = os.environ["RANDOM_VIDEO_PATHS"].replace("\\", "/").split(",")
         grab_frames_at_random(
-            input_video=os.environ["RANDOM_VIDEO_PATH"],
-            output_folder=os.environ["RANDOM_OUTPUT_FOLDER"],
-            num_frames=2000,
+            input_videos=video_paths,
+            output_folder=os.environ["RANDOM_OUTPUT_FOLDER"].replace("\\", "/"),
+            num_frames_per_video=int(os.environ["RANDOM_NUM_FRAMES_PER_VIDEO"]),
             overwrite_output_folder=False
         )
 
